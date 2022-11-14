@@ -16,9 +16,31 @@ router.post('/signup', async (req, res) => {
     console.log('User created successfully: ', response)
   } catch (error) {
     console.log(error)
-    return res.json({status: 'error'})
+    return res.json({error: true, message: 'Failed to create user'})
   }
   res.json({status:'ok'})
+})
+
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body
+  const user = await User.findOne({ email })
+
+  if (!user) {
+    return res.json({error: true, message: 'Email is not registered'})
+  }
+
+  if (await bcrypt.compare(password, user.passwordHash)) {
+    req.session.isAuth = true
+    return res.json({name: user.name})
+  }
+  return res.json({error: true, message: 'Invalid email/password'})
+})
+
+router.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) throw err;
+    res.redirect('/')
+  })
 })
 
 module.exports = router;

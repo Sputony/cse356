@@ -5,9 +5,16 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require("cors");
 var mongoose = require('mongoose');
+var session = require('express-session');
+//var MongoDBSession = require('connect-mongodb-session')(session)
 
 const url = `mongodb://127.0.0.1:27017/collab-doc`;
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
+
+// const store = new MongoDBSession({
+//   uri: url,
+//   collection: "sessions",
+// });
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -34,6 +41,11 @@ function setHeader(req, res, next) {
 }
 app.use(setHeader)
 
+app.use(session({
+  secret: 'dragons',
+  resave: false,
+  saveUninitialized: false,
+}))
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

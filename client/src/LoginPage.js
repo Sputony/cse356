@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import axios from "axios";
+import PropTypes from 'prop-types';
 
-function LoginPage() {
+function LoginPage({ setAuth }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -12,7 +13,11 @@ function LoginPage() {
         'Content-Type': 'application/json'
     }
     axios.post(url, {email: email, password: password}, {headers: headers})
-    .then(res => { console.log(res)})
+    .then(res => {
+        if (res.data.status == 'ok')
+            setAuth(true)
+        console.log(res)
+    })
     .catch(error => { console.log(error)})
   }
   return (
@@ -25,6 +30,10 @@ function LoginPage() {
       </form>
     </div>
   );
+}
+
+LoginPage.propTypes = {
+    setAuth: PropTypes.func.isRequired
 }
 
 export default LoginPage;
