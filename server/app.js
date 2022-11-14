@@ -4,9 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require("cors");
+var mongoose = require('mongoose');
+
+const url = `mongodb://127.0.0.1:27017/collab-doc`;
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
 var indexRouter = require('./routes/index');
-//var usersRouter = require('./routes/users');
+var usersRouter = require('./routes/users');
 //var testAPIRouter = require("./routes/testAPI");
 var apiRouter = require("./routes/api");
 
@@ -32,7 +36,7 @@ app.use(setHeader)
 
 
 app.use('/', indexRouter);
-//app.use('/users', usersRouter);
+app.use('/users', usersRouter);
 //app.use("/testAPI", testAPIRouter);
 app.use("/api", apiRouter);
 app.use('/library', express.static('library'))
