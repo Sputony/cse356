@@ -18,8 +18,8 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-//var testAPIRouter = require("./routes/testAPI");
 var apiRouter = require("./routes/api");
+var collectionRouter = require("./routes/collection")
 
 var app = express();
 
@@ -49,8 +49,8 @@ app.use(session({
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-//app.use("/testAPI", testAPIRouter);
-app.use("/api", apiRouter);
+app.use('/api', apiRouter);
+app.use('/collection', collectionRouter)
 app.use('/library', express.static('library'))
 
 // catch 404 and forward to error handler

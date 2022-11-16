@@ -14,8 +14,8 @@ function LoginPage({ setAuth }) {
     }
     axios.post(url, {email: email, password: password}, {headers: headers})
     .then(res => {
-        if (res.data.status == 'ok')
-            setAuth(true)
+        if (res.data.name)
+          setAuth(true)
         console.log(res)
     })
     .catch(error => { console.log(error)})
