@@ -37,4 +37,17 @@ router.post("/delete", async (req, res) => {
     }
 })
 
+router.get("/list", isAuth, async (req, res) => {
+    try {
+        Document.find().sort('-updatedAt').limit(10).exec((err, docs) =>{
+          console.log(docs)
+          console.log("Successfully retrived documents")
+          return res.json(docs)
+        })
+      } catch (error) {
+        console.log(error)
+        res.json({error: true, message: "Failed to retrieve documents"})
+      }
+})
+
 module.exports = router;

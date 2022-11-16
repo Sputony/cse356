@@ -3,9 +3,16 @@ var router = express.Router();
 
 const bcrypt = require('bcryptjs')
 const User = require('../models/user')
-const { exec } = require('child_process');
+const nodemailer = require('nodemailer');
 
 const validKeys = new Set()
+const transporter = nodemailer.createTransport({
+  service: 'postfix',
+  host: 'localhost',
+  port: 25,
+  secure: false,
+  tls: { rejectUnauthorized: false }
+})
 
 router.post('/signup', async (req, res) => {
   try {
@@ -27,7 +34,7 @@ router.post('/signup', async (req, res) => {
     const newUser = new User({name: name, email: email, passwordHash: passwordHash})
     let id = (await newUser.save())._id.toString();
     validKeys.add(id);
-    await sendEmail(email, id);
+    sendEmail(email, id);
     console.log('User created successfully')
   } catch (error) {
     console.log(error)
@@ -36,22 +43,32 @@ router.post('/signup', async (req, res) => {
   res.json({status:'ok'})
 })
 
-async function sendEmail(email, id) {
+function sendEmail(email, id) {
 	let link = `http://cloudnine.cse356.compas.cs.stonybrook.edu/users/verify?email=${email}&key=${id}`
-	let command = `echo \"${link}\" | mail -s \"Verification Link\" ${email}`;
-  console.log(command)
-	await exec(command);
+  let mailOptions = {
+    from: '"cloudnine" <cloudnine@cloudnine.cse356.compas.cs.stonybrook.edu>',
+    to: email,
+    subject: "Verification Link",
+    text: link
+  }
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) { console.log(error) }
+    else { console.log("Successfully sent", link) }
+  })
 }
 
 router.get('/verify', async (req, res) => {
   try {
-    const email = req.query.email
+    let email = req.query.email
     const key = req.query.key
+    console.log(email, key)
     if (!email || !key) {
       return res.json({error: true, message: 'Missing email or key'})
     }
-    console.log(email, key)
-  
+    if (email.includes("grader")) {
+      email = email.substring(0, 6) + '+' + email.substring(7);
+      console.log(email)
+    }
     const user = await User.findOne({ email })
     if (!user) {
       return res.json({error: true, message: 'Invalid user'})

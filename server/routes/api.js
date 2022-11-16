@@ -3,6 +3,7 @@ var router = express.Router();
 
 const Y = require('yjs');
 const {Base64} = require('js-base64');
+const isAuth = require("../isAuth")
 
 function opHandler(request, response, next) {
     let docID = request.params.id;
@@ -62,8 +63,8 @@ function connectHandler(request, response) {
     });
 }
 
-router.get('/connect/:id', connectHandler);
-router.post('/op/:id', opHandler);
+router.get('/connect/:id', isAuth, connectHandler);
+router.post('/op/:id', isAuth, opHandler);
 
 let clients = new Map();
 let ydocMap = new Map();

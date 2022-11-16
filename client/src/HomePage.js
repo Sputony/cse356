@@ -12,7 +12,6 @@ function HomePage() {
     })
   }, [])
 
-
   return (
     <div className="HomePage" dangerouslySetInnerHTML={html}/>
   );
