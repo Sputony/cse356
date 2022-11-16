@@ -20,6 +20,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var apiRouter = require("./routes/api");
 var collectionRouter = require("./routes/collection")
+var mediaRouter = require("./routes/media")
 
 var app = express();
 
@@ -51,6 +52,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api', apiRouter);
 app.use('/collection', collectionRouter)
+app.use('/media', mediaRouter)
 app.use('/library', express.static('library'))
 
 // catch 404 and forward to error handler
