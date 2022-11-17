@@ -99,6 +99,8 @@ router.post('/login', async (req, res) => {
 
   if (await bcrypt.compare(password, user.passwordHash)) {
     req.session.isAuth = true
+    req.session.name = user.name
+    console.log(req.session, req.sessionID)
     return res.json({name: user.name})
   }
   return res.json({error: true, message: 'Invalid email/password'})

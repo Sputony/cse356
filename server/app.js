@@ -6,15 +6,15 @@ var logger = require('morgan');
 var cors = require("cors");
 var mongoose = require('mongoose');
 var session = require('express-session');
-//var MongoDBSession = require('connect-mongodb-session')(session)
+var MongoDBSession = require('connect-mongodb-session')(session)
 
 const url = `mongodb://127.0.0.1:27017/collab-doc`;
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
-// const store = new MongoDBSession({
-//   uri: url,
-//   collection: "sessions",
-// });
+const store = new MongoDBSession({
+  uri: url,
+  collection: "sessions",
+});
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -28,7 +28,11 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://cloudnine.cse356.compas.cs.stonybrook.edu:3000',
+  methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+  credentials: true
+}));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -46,6 +50,11 @@ app.use(session({
   secret: 'dragons',
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    secure: false,
+    maxAge: 60000
+  },
+  store: store
 }))
 
 app.use('/', indexRouter);

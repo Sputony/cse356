@@ -38,7 +38,7 @@ function TextEditor(props) {
         const headers = {
           'Content-Type': 'application/json'
         }
-        axios.post(url, {update: base64Encoded}, {headers: headers})
+        axios.post(url, {update: base64Encoded}, {headers: headers, withCredentials:true})
           .then(res => { console.log(res)})
           .catch(error => { console.log(error)})
       })

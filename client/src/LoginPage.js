@@ -12,7 +12,7 @@ function LoginPage({ setAuth }) {
     const headers = {
         'Content-Type': 'application/json'
     }
-    axios.post(url, {email: email, password: password}, {headers: headers})
+    axios.post(url, {email: email, password: password}, {headers: headers, withCredentials: true })
     .then(res => {
         if (res.data.name)
           setAuth(true)

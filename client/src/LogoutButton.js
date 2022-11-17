@@ -10,7 +10,7 @@ function LogoutButton({ setAuth }) {
     const headers = {
         'Content-Type': 'application/json'
     }
-    axios.post(url, {}, {headers: headers})
+    axios.post(url, {}, {headers: headers, withCredentials: true})
     .then(res => {
         setAuth(false)
         history.push("/")

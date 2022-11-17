@@ -4,7 +4,7 @@ var router = express.Router();
 const isAuth = require("../isAuth")
 const Document = require('../models/document')
 
-router.post("/create", async (req, res) => {
+router.post("/create", isAuth, async (req, res) => {
     try {
         console.log(req.body)
         const { name } = req.body
@@ -21,7 +21,7 @@ router.post("/create", async (req, res) => {
     }
 })
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", isAuth, async (req, res) => {
     try {
         console.log(req.body)
         const { id } = req.body
@@ -37,7 +37,7 @@ router.post("/delete", async (req, res) => {
     }
 })
 
-router.get("/list", async (req, res) => {
+router.get("/list", isAuth, async (req, res) => {
     try {
         Document.find().sort('-updatedAt').limit(10).exec((err, docs) =>{
           console.log(docs)

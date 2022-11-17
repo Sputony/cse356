@@ -8,7 +8,7 @@ function HomePage() {
   useEffect(() => {
     let mounted = true;
     let url = 'http://cloudnine.cse356.compas.cs.stonybrook.edu/collection/list'
-    axios.get(url)
+    axios.get(url, {withCredentials: true})
     .then(res => {
       if (mounted) {
         console.log(res.data)
@@ -24,7 +24,7 @@ function HomePage() {
     const headers = {
         'Content-Type': 'application/json'
     }
-    axios.post(url, {name: newDocName}, {headers: headers})
+    axios.post(url, {name: newDocName}, {headers: headers, withCredentials: true})
     .then(res => { console.log(res) })
     .catch(error => { console.log(error) })
   }

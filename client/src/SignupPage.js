@@ -12,7 +12,7 @@ function SignupPage() {
     const headers = {
       'Content-Type': 'application/json'
     }
-    axios.post(url, {name: name, email: email, password: password}, {headers: headers})
+    axios.post(url, {name: name, email: email, password: password}, {headers: headers, withCredentials: true})
     .then(res => { console.log(res)})
     .catch(error => { console.log(error)})
   }
