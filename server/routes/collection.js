@@ -37,11 +37,11 @@ router.post("/delete", async (req, res) => {
     }
 })
 
-router.get("/list", isAuth, async (req, res) => {
+router.get("/list", async (req, res) => {
     try {
         Document.find().sort('-updatedAt').limit(10).exec((err, docs) =>{
           console.log(docs)
-          console.log("Successfully retrived documents")
+          console.log("Successfully retrieved documents")
           return res.json(docs)
         })
       } catch (error) {
