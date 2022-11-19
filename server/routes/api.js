@@ -42,12 +42,23 @@ function connectHandler(request, response) {
     
     const documentState = Y.encodeStateAsUpdate(ydoc)
     const base64Encoded = Base64.fromUint8Array(documentState)
-    const data = `event: sync\ndata: ${JSON.stringify(base64Encoded)}\n\n`;
-    response.write(data);
+    let data = `event: sync\ndata: ${JSON.stringify(base64Encoded)}\n\n`;
     
-    const clientID = Date.now();
+    if (clients.has(docID)) {
+        let clientList = clients.get(docID)
+        for (let i = 0; i < clientList.length; i++) {
+            let client = clientList[i]
+            let payload = {session_id: client.session_id, name: client.name, cursor: client.cursor}
+            data += `event: presence\ndata: ${JSON.stringify(payload)}\n\n`
+        }
+    }
+    response.write(data)
+
+    const clientID = request.sessionID
     let clientObj = {
-        id: clientID,
+        session_id: clientID,
+        name: request.session.name,
+        cursor: {},
         stream: response
     };
 
@@ -63,8 +74,27 @@ function connectHandler(request, response) {
     });
 }
 
+function presenceHandler(request, response) {
+    let docID = request.params.id
+    let clientList = clients.get(docID)
+    let payload = {session_id: request.sessionID, name: request.session.name, cursor: request.body}
+    let data = `event: presence\ndata: ${JSON.stringify(payload)}\n\n`;
+    console.log(data)
+
+    for (let i = 0; i < clientList.length; i++) {
+        let client = clientList[i]
+        if (client.name == request.session.name) {
+            console.log("Registering cursor")
+            client.cursor = request.body
+        }
+        client.stream.write(data)
+    }
+    response.status(200).end()
+}
+
 router.get('/connect/:id', isAuth, connectHandler);
 router.post('/op/:id', isAuth, opHandler);
+router.post('/presence/:id', isAuth, presenceHandler);
 
 let clients = new Map();
 let ydocMap = new Map();
