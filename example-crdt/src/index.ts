@@ -26,7 +26,7 @@ exports.CRDT = class {
       this.ydoc_update = fromUint8Array(update)
     });
 
-    ['update', 'insert', 'delete', 'toHTML'].forEach(f => (this as any)[f] = (this as any)[f].bind(this));
+    ['update', 'insert', 'delete', 'insertImage', 'toHTML'].forEach(f => (this as any)[f] = (this as any)[f].bind(this));
   }
 
   update(update: string) {
@@ -47,6 +47,12 @@ exports.CRDT = class {
   delete(index: number, length: number) {
     // ...
     this.ytext.delete(index, length);
+    const payload = { update: this.ydoc_update};
+    this.cb(`${JSON.stringify(payload)}`, true);
+  }
+
+  insertImage(index: number, url: string) {
+    this.ytext.insert(index, { image: url });
     const payload = { update: this.ydoc_update};
     this.cb(`${JSON.stringify(payload)}`, true);
   }

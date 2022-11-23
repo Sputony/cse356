@@ -1,0 +1,36 @@
+
+Welcome to collab-doc
+<div className="CollectionCreate">
+    <iframe name="collectionframe" id="collectionframe" style="display: none;"></iframe>
+    <form action="http://cloudnine.cse356.compas.cs.stonybrook.edu/collection/create" method="post" target="collectionframe">
+      New Document Name: <input type="text" name="name"/>
+      <button type="submit">Create Document</button>
+    </form>
+</div>
+<div>
+    10 Most Recent Documents
+    <ul id="documents"></ul>
+</div>
+
+<script>
+    fetch('http://cloudnine.cse356.compas.cs.stonybrook.edu/collection/list', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data)
+        data.forEach((doc) => {
+            let list = document.getElementById("documents")
+            let li = document.createElement("li")
+            let link = document.createElement("a")
+            link.href = "http://cloudnine.cse356.compas.cs.stonybrook.edu/edit/" + doc._id
+            link.innerHTML = doc.name
+            li.appendChild(link)
+            list.appendChild(li)
+        })
+    })
+</script>

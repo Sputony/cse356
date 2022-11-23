@@ -73,7 +73,7 @@ function TextEditor(props) {
   useEffect(() => {
     if (event == null || quill == null) return
     const handler = (range, oldRange, source) => {
-      if (source === 'user') {
+      if (source === 'user' && range != null) {
         let url = 'http://cloudnine.cse356.compas.cs.stonybrook.edu/api/presence/' + props.docID;
         const headers = {
           'Content-Type': 'application/json'
@@ -95,7 +95,7 @@ function TextEditor(props) {
     event.addEventListener('update', (e) => {
       const binaryEncoded = toUint8Array(e.data)
       Y.applyUpdate(ydoc, binaryEncoded)
-      quill.setContents(ytext.toDelta())
+      quill.updateContents(binaryEncoded)
     })
   })
 
@@ -112,10 +112,15 @@ function TextEditor(props) {
   useEffect(() => {
     if (event == null || quill == null) return
     event.addEventListener('presence', (e) => {
-      console.log(e.data)
-      const data = e.data
-      // Cursors don't render, but at least the event is working
-      cursors.createCursor(data.session_id, data.name, data.cursor)
+      const data = JSON.parse(e.data)
+      console.log(data)
+      cursors.removeCursor(data.session_id)
+
+      if (JSON.stringify(data.cursor) !== '{}' ) {
+        cursors.createCursor(data.session_id, data.name, 'blue')
+        cursors.moveCursor(data.session_id, data.cursor)
+      }
+      cursors.update()
     })
   })
 

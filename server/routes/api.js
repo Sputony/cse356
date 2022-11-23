@@ -70,7 +70,23 @@ function connectHandler(request, response) {
     }
     request.on('close', () => {
         console.log(`${clientID} Connection closed`);
-        clients.delete(clientID)
+        let clientList = clients.get(docID)
+
+        // Unoptimal linear search, consider using a hashmap for users
+        let client
+        for (let i = 0; i < clientList.length; i++) {
+            client = clientList[i]
+            if (client.session_id == clientID) {
+                clientList.splice(i, 1)
+                break
+            }
+        }
+
+        let payload = {session_id: client.session_id, name: client.name, cursor: {}}
+        for (let i = 0; i < clientList.length; i++) {
+            let stream = clientList[i].stream
+            stream.write(data)
+        }
     });
 }
 
