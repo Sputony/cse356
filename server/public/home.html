@@ -1,4 +1,5 @@
 
+<button id="logoutButton">Logout</button><br/>
 Welcome to collab-doc
 <div className="CollectionCreate">
     <iframe name="collectionframe" id="collectionframe" style="display: none;"></iframe>
@@ -13,6 +14,34 @@ Welcome to collab-doc
 </div>
 
 <script>
+    function deleteHandler(id) {
+        fetch('http://cloudnine.cse356.compas.cs.stonybrook.edu/collection/delete', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({id: id})
+        })
+        .then((response) => response.json())
+        .then((data) => console.log(data))
+    }
+    function logoutHandler() {
+        fetch('http://cloudnine.cse356.compas.cs.stonybrook.edu/users/logout', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then((response) => response.json())
+        .then((data) => console.log(data))
+    }
+
+    document.getElementById("logoutButton").addEventListener("click", function () {
+        logoutHandler()
+    })
+
     fetch('http://cloudnine.cse356.compas.cs.stonybrook.edu/collection/list', {
         method: 'GET',
         credentials: 'include',
@@ -27,9 +56,15 @@ Welcome to collab-doc
             let list = document.getElementById("documents")
             let li = document.createElement("li")
             let link = document.createElement("a")
+            let button = document.createElement("button")
             link.href = "http://cloudnine.cse356.compas.cs.stonybrook.edu/edit/" + doc._id
             link.innerHTML = doc.name
             li.appendChild(link)
+            button.addEventListener("click", function () {
+                deleteHandler(doc._id)
+            })
+            button.innerHTML = "Delete"
+            li.appendChild(button)
             list.appendChild(li)
         })
     })

@@ -75,7 +75,8 @@
   event.addEventListener('update', (e) => {
     const binaryEncoded = toUint8Array(e.data)
     Y.applyUpdate(ydoc, binaryEncoded)
-    quill.updateContents(binaryEncoded)
+    quill.setContents(ytext.toDelta()) 
+    //quill.updateContents(binaryEncoded)
   })
 
   event.addEventListener('sync', (e) => {

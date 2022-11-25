@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 
 router.post('/signup', async (req, res) => {
   try {
-    console.log(req.body)
+    //console.log(req.body)
     const { name, email, password } = req.body
     if (!name || !password || !email) {
       return res.json({error: true, message: 'Missing name, email, or password' });
@@ -32,10 +32,10 @@ router.post('/signup', async (req, res) => {
   
     const passwordHash = await bcrypt.hash(password, 10)
     const newUser = new User({name: name, email: email, passwordHash: passwordHash})
-    let id = (await newUser.save())._id.toString();
+    const id = (await newUser.save())._id.toString();
     validKeys.add(id);
     sendEmail(email, id);
-    console.log('User created successfully')
+    //console.log('User created successfully')
   } catch (error) {
     console.log(error)
     return res.json({error: true, message: 'Failed to create user'})
@@ -44,16 +44,20 @@ router.post('/signup', async (req, res) => {
 })
 
 function sendEmail(email, id) {
-	let link = `http://cloudnine.cse356.compas.cs.stonybrook.edu/users/verify?email=${email}&key=${id}`
-  let mailOptions = {
+	const link = `http://cloudnine.cse356.compas.cs.stonybrook.edu/users/verify?email=${email}&key=${id}`
+  const mailOptions = {
     from: '"cloudnine" <cloudnine@cloudnine.cse356.compas.cs.stonybrook.edu>',
     to: email,
     subject: "Verification Link",
     text: link
   }
   transporter.sendMail(mailOptions, (error, info) => {
-    if (error) { console.log(error) }
-    else { console.log("Successfully sent", link) }
+    if (error) {
+      console.log(error)
+    }
+    else {
+      //console.log("Successfully sent", link)
+    }
   })
 }
 
@@ -61,13 +65,13 @@ router.get('/verify', async (req, res) => {
   try {
     let email = req.query.email
     const key = req.query.key
-    console.log(email, key)
+    //console.log(email, key)
     if (!email || !key) {
       return res.json({error: true, message: 'Missing email or key'})
     }
     if (email.includes("grader")) {
       email = email.substring(0, 6) + '+' + email.substring(7);
-      console.log(email)
+      //console.log(email)
     }
     const user = await User.findOne({ email })
     if (!user) {
@@ -78,10 +82,10 @@ router.get('/verify', async (req, res) => {
     }
     user.enabled = true;
     await user.save();
-    console.log('User successfully verified')
-    res.json({ status: 'Account successfully verified'});
+    //console.log('User successfully verified')
+    res.json({status: 'Account successfully verified'});
   } catch (error) {
-    console.log(error)
+    //console.log(error)
     return res.json({error: true, message: 'Failed to verfiy user'})
   }
 })
@@ -100,7 +104,7 @@ router.post('/login', async (req, res) => {
   if (await bcrypt.compare(password, user.passwordHash)) {
     req.session.isAuth = true
     req.session.name = user.name
-    console.log(req.session, req.sessionID)
+    //console.log(req.session, req.sessionID)
     return res.json({name: user.name})
   }
   return res.json({error: true, message: 'Invalid email/password'})

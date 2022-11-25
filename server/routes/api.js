@@ -6,24 +6,23 @@ const {Base64} = require('js-base64');
 const isAuth = require("../isAuth")
 
 function opHandler(request, response, next) {
-    let docID = request.params.id;
+    const docID = request.params.id;
     let ydoc = ydocMap.get(docID);
     const binaryEncoded = Base64.toUint8Array(request.body.update)
     Y.applyUpdate(ydoc, binaryEncoded);
     
-    let clientList = clients.get(docID)
-    let data = `event: update\ndata: ${JSON.stringify(request.body.update)}\n\n`;
-    for (let i = 0; i < clientList.length; i++) {
-        let stream = clientList[i].stream
-        stream.write(data)
-    }
+    const clientList = clients.get(docID)
+    const data = `event: update\ndata: ${JSON.stringify(request.body.update)}\n\n`;
+    clientList.forEach(client => {
+        client.stream.write(data)
+    })
     response.status(200).end()
 }
 
 function connectHandler(request, response) {
-    console.log("Connecting to client");
+    // console.log("Connecting to client");
 
-    let docID = request.params.id;
+    const docID = request.params.id;
     response.set({
         'Content-Type': 'text/event-stream',
         'Connection': 'keep-alive',
@@ -45,17 +44,16 @@ function connectHandler(request, response) {
     let data = `event: sync\ndata: ${JSON.stringify(base64Encoded)}\n\n`;
     
     if (clients.has(docID)) {
-        let clientList = clients.get(docID)
-        for (let i = 0; i < clientList.length; i++) {
-            let client = clientList[i]
+        const clientList = clients.get(docID)
+        clientList.forEach(client => {
             let payload = {session_id: client.session_id, name: client.name, cursor: client.cursor}
             data += `event: presence\ndata: ${JSON.stringify(payload)}\n\n`
-        }
+        })
     }
     response.write(data)
 
     const clientID = request.sessionID
-    let clientObj = {
+    const clientObj = {
         session_id: clientID,
         name: request.session.name,
         cursor: {},
@@ -68,8 +66,9 @@ function connectHandler(request, response) {
     else {
         clients.set(docID, [clientObj]);
     }
+
     request.on('close', () => {
-        console.log(`${clientID} Connection closed`);
+        // console.log(`${clientID} Connection closed`);
         let clientList = clients.get(docID)
 
         // Unoptimal linear search, consider using a hashmap for users
@@ -82,29 +81,27 @@ function connectHandler(request, response) {
             }
         }
 
-        let payload = {session_id: client.session_id, name: client.name, cursor: {}}
-        for (let i = 0; i < clientList.length; i++) {
-            let stream = clientList[i].stream
-            stream.write(data)
-        }
+        const payload = {session_id: client.session_id, name: client.name, cursor: {}}
+        const data = `event: presence\ndata: ${JSON.stringify(payload)}\n\n`
+        clientList.forEach(client => {
+            client.stream.write(data)
+        })
     });
 }
 
 function presenceHandler(request, response) {
-    let docID = request.params.id
-    let clientList = clients.get(docID)
-    let payload = {session_id: request.sessionID, name: request.session.name, cursor: request.body}
-    let data = `event: presence\ndata: ${JSON.stringify(payload)}\n\n`;
-    console.log(data)
+    const docID = request.params.id
+    const clientList = clients.get(docID)
+    const payload = {session_id: request.sessionID, name: request.session.name, cursor: request.body}
+    const data = `event: presence\ndata: ${JSON.stringify(payload)}\n\n`;
+    // console.log(data)
 
-    for (let i = 0; i < clientList.length; i++) {
-        let client = clientList[i]
+    clientList.forEach(client => {
         if (client.name == request.session.name) {
-            console.log("Registering cursor")
             client.cursor = request.body
         }
         client.stream.write(data)
-    }
+    })
     response.status(200).end()
 }
 

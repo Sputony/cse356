@@ -10,13 +10,13 @@ const storage = multer.diskStorage({
         cb(null, 'media')
     },
     filename: (req, file, cb) => {
-        console.log(file)
+        //console.log(file)
         cb(null, Date.now() + file.originalname)
     }
 })
 
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/gif') {
         cb(null, true)
     } else {
         cb(null, false)
@@ -30,7 +30,7 @@ const upload = multer({
 
 router.post("/upload", upload.single('file'), (req, res) => {
     if (req.file) {
-        console.log(req.file.filename)
+        //console.log(req.file.filename)
         res.json({mediaid: req.file.filename})
     }
     else {
@@ -39,8 +39,8 @@ router.post("/upload", upload.single('file'), (req, res) => {
 })
 
 router.get("/access/:mediaid", isAuth, (req, res) => {
-    let mediaid = req.params.mediaid
-    let fileExt = mediaid.split('.').pop()
+    const mediaid = req.params.mediaid
+    const fileExt = mediaid.split('.').pop()
     res.setHeader('Content-Type', 'image/'+fileExt);
     res.sendFile(path.join(__dirname, "../media/"+mediaid))
 })
